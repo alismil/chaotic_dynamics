@@ -1,0 +1,20 @@
+import numpy as np
+from math import log
+
+def lyapunov2(n,a,b):
+    x, y = 0, 0.2
+    v1, v2 = np.array([1,0]), np.array([0,1])
+    J = np.array([[a, -0.4],
+                  [0.2, b]])
+    S1, S2 = 0, 0
+    for j in range(1,n+1):
+        x, y = a*x-y**2, b*y+x*y
+        J[0,1], J[1,0], J[1,1] = -2*y, y, b+x
+        v1, v2 = np.matmul(J, v1), np.matmul(J, v2)
+        p1, p2 = np.matmul(v1,v1), np.matmul(v2,v1)
+        v2 = v2 - (p2/p1)*v1
+        S1, S2 = S1+log(np.linalg.norm(v1)), S2+log(np.linalg.norm(v2))
+        h1, h2 = S1/j, S2/j
+        v1, v2 = v1*(1/np.linalg.norm(v1)), v2*(1/np.linalg.norm(v2))
+    return print('After {} iterations, the estimated value for h1 is {}'
+                 ' and that for h2 is {}'.format(n, h1, h2))
