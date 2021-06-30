@@ -1,0 +1,14 @@
+import matplotlib.pyplot as plt
+
+def attractor(N,a,b):
+    x, y = 0, 0.2
+    for n in range(1,201):
+        x, y = a*x-y**2, b*y+x*y
+    plot = [(x,y)]
+    for n in range(1,N+1):
+        x, y = a*x-y**2, b*y+x*y
+        plot.append((x,y))
+    return plot
+   
+plt.scatter(*zip(*attractor(20000,3/4,7/4)), s=0.01)
+plt.show()
