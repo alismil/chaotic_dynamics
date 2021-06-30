@@ -1,0 +1,43 @@
+import matplotlib.pyplot as plt
+import scipy.optimize as opt
+import numpy as np
+from math import log
+
+n = 100000
+m = 7
+e0 = 1/2
+a,b = 1.4, 0.3
+x,y = 0,0
+for i in range(1,201):
+    x,y = a-x**2+b*y,x
+S = []
+for j in range(n):
+    x,y = a-x**2+b*y,x
+    xj,yj = x,y
+    S.append((xj,yj))
+S1 = np.array(S)      
+evals = []
+Nvals = []
+for k in range(1,m+1):
+    e = e0**k
+    S2 = np.floor(S1/e)
+    S3 = [tuple(l) for l in S2.tolist()]
+    N = len(list(set(S3)))
+    print(e, N)
+    evals.append(log(1/e))
+    Nvals.append(log(N))
+evals2 = np.array(evals)
+Nvals2 = np.array(Nvals)
+
+def line(x, C, D):
+    return D*x + C
+
+plot_range = np.linspace(0, evals2.max(), 50)
+
+fit_data, _ = opt.curve_fit(line, evals2, Nvals2)
+fit_line = line(plot_range, *fit_data)
+
+plt.plot(evals2, Nvals2, "bo", label="Data")
+plt.plot(plot_range, fit_line, "r", label="Fit")
+plt.title("Plot of ln N(epsilon) against ln(1/epsilon) with least-squares fit")
+plt.legend(loc="upper left")
