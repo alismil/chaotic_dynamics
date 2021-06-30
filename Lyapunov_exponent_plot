@@ -1,0 +1,20 @@
+from math import log
+import numpy
+   
+def lyapunov(a1,a2,M,N):
+    da = (a2-a1)/M
+    x0 = 0.7
+    pts = []
+    for a in numpy.arange(a1,a2+1,da):
+        ha,x = 0,x0
+        for j in range(101):
+            x = a*x*(1-x)
+        for k in range(N+1):
+            x,ha = a*x*(1-x),ha+log(abs(1-2*x))
+        ha = log(abs(a))+ha/N
+        pts.append((a,ha))
+    return pts
+       
+       
+plt.plot(*zip(*lyapunov(1,4,1000,200)))
+plt.show()
