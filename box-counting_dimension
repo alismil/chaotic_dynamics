@@ -1,0 +1,64 @@
+import matplotlib.pyplot as plt
+import scipy.optimize as opt
+import numpy as np
+from math import log
+
+n = 100000
+m = 7
+e0 = 1/2
+a, b = 3/4, 7/4
+x, y = 0, 0.2
+for i in range(1,201):         # skips the first 200 iterates
+    x, y = a*x-y**2, b*y+x*y
+S = []
+for j in range(n):             # adds the next n iterates to the list S
+    x, y = a*x-y**2, b*y+x*y
+    xj, yj = x, y
+    S.append((xj,yj))
+S1 = np.array(S)               # changes S to an array S1
+evals = []                     # sets up list for values of ln(1/epsilon)
+Nvals = []                     # sets up list for values of ln(N)
+
+line = '+' + '-'*11 + '+' + '-'*6 + '+'
+print(line,'\n''| {0:<9} | {1:4} |'.format('\u03B5', 'N(\u03B5)'))
+print(line)                    
+# prints the header for the table of N(epsilon) against epsilon
+
+for k in range(1,m+1):        
+    e = e0**k                  # iterates through each value of epsilon
+    S2 = np.floor(S1/e)        # divides S1 by epsilon and takes the largest
+                               # integer value
+    S3 = [tuple(l) for l in S2.tolist()] # changes S2 to a list and creates a
+                                         # list of tuples of its entries
+                                         
+    N = len(list(set(S3)))          # changes S3 to a set to rid of repeat
+                                    # elements, then back to a list to
+                                    # calculate the number of unique elements                          
+    print('| {0:<9} | {1:<4} |'.format(e, N))
+    evals.append(log(1/e))          # appends ln(1/epsilon) to the list evals
+    Nvals.append(log(N))            # appends ln(N) to the list Nvals
+   
+evals2 = np.array(evals)            # changes evals and Nvals to arrays
+Nvals2 = np.array(Nvals)
+
+matrix = np.vstack([evals2, np.ones(len(evals2))]).T
+# creates a coefficient matrix where the first column contains ln(1/epsilon)
+# for each epsilon and the second column contains 1 in each entry
+
+D, C = np.linalg.lstsq(matrix, Nvals2, rcond=None)[0]
+# estimates the values of D and C in D*ln(1/epsilon) + C (the equation of the
+# line of best fit) based on the coefficient matrix and the calculated values
+# of ln(N)
+
+print(line,'\n',
+      '','\n'
+      'The estimated value of the box-counting dimension is D \u2248', D)
+
+plt.plot(evals2, Nvals2, "bo")  
+# plots the discrete points ln(N) against ln(1/epsilon)
+
+plt.plot(evals2, D*evals2 + C, 'r')            
+# plots the least-squares fit line D*ln(1/epsilon) + C
+
+plt.ylabel('ln N(\u03B5)')
+plt.xlabel('ln(1/\u03B5)')
